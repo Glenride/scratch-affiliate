@@ -1,0 +1,142 @@
+import { Link, router, usePage } from '@inertiajs/react';
+import { PropsWithChildren, useState, type FormEvent } from 'react';
+import { SharedData } from '@/types';
+import { cn } from '@/lib/utils';
+import { FlashToaster } from '@/components/flash-toaster';
+import AppearanceToggleDropdown from '@/components/appearance-dropdown';
+import { Search } from 'lucide-react';
+
+interface BibleLayoutProps extends PropsWithChildren {
+    zenMode?: boolean;
+}
+
+function HeaderSearch() {
+    const [value, setValue] = useState('');
+
+    const submit = (e: FormEvent) => {
+        e.preventDefault();
+        const q = value.trim();
+
+        if (q.length >= 2) {
+            router.visit(`/bible/search?q=${encodeURIComponent(q)}`);
+        }
+    };
+
+    return (
+        <form onSubmit={submit} className="relative" role="search">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            <input
+                type="search"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="Search scripture…"
+                aria-label="Search the Bible"
+                className="w-40 md:w-48 rounded-full border border-input bg-background pl-9 pr-3 py-1.5 text-xs normal-case tracking-normal text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none transition-all focus:w-52 md:focus:w-64"
+            />
+        </form>
+    );
+}
+
+export default function BibleLayout({ children, zenMode = false }: BibleLayoutProps) {
+    const { auth } = usePage<SharedData>().props;
+
+    return (
+        <div className="min-h-screen bg-background text-foreground font-sans flex flex-col transition-colors duration-500">
+            <FlashToaster />
+            <header className={cn(
+                "py-6 px-4 md:px-12 flex flex-col md:flex-row justify-between items-center border-b border-border/50 transition-all duration-500 overflow-hidden",
+                zenMode ? "h-0 py-0 opacity-0 border-none" : "h-auto opacity-100"
+            )}>
+                <div className="mb-4 md:mb-0">
+                    <Link href="/" className="font-serif text-2xl tracking-widest uppercase font-bold">
+                        Glenride holy Bible
+                    </Link>
+                </div>
+
+                <nav className="flex items-center space-x-6 text-sm tracking-widest uppercase">
+                    <Link href="/" className="hover:text-primary/70 transition-colors">Home</Link>
+                    <Link href={route('about')} className="hover:text-primary/70 transition-colors">About</Link>
+                    <Link href={route('pricing')} className="hover:text-primary/70 transition-colors">Pricing</Link>
+                    <Link href="/#old-testament" className="hover:text-primary/70 transition-colors">Old Testament</Link>
+                    <Link href="/#new-testament" className="hover:text-primary/70 transition-colors">New Testament</Link>
+                    <HeaderSearch />
+                    <AppearanceToggleDropdown />
+
+                    {auth.user ? (
+                        <Link href="/dashboard" className="hover:text-primary/70 transition-colors font-bold text-primary">
+                            My Journal
+                        </Link>
+                    ) : (
+                        <>
+                            <Link href="/login" className="hover:text-primary/70 transition-colors">
+                                Log in
+                            </Link>
+                            <Link href="/register" className="bg-primary text-primary-foreground px-4 py-2 text-xs hover:opacity-90 transition-opacity">
+                                Register
+                            </Link>
+                        </>
+                    )}
+                </nav>
+            </header>
+
+            <main className="flex-grow">
+                {children}
+            </main>
+
+            <footer className={cn(
+                "bg-[#F5F2EA] dark:bg-card border-t border-border/50 px-4 md:px-12 transition-all duration-500 overflow-hidden",
+                zenMode ? "max-h-0 py-0 opacity-0 border-none" : "max-h-[1000px] py-12 opacity-100 mt-auto"
+            )}>
+                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div className="col-span-1 md:col-span-1">
+                        <h3 className="font-serif text-lg uppercase tracking-widest mb-4">Glenride Holy Bible</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                            The Word of God, accessible to everyone. Read, study, and share the Bible in multiple languages and versions.
+                        </p>
+                    </div>
+
+                    <div className="col-span-1">
+                        <h4 className="font-serif text-sm uppercase tracking-widest mb-4">Quick Links</h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li><Link href="/" className="hover:text-primary">Home</Link></li>
+                            <li><Link href={route('about')} className="hover:text-primary">About</Link></li>
+                            <li><Link href={route('pricing')} className="hover:text-primary">Pricing</Link></li>
+                            <li><Link href="#" className="hover:text-primary">Contact</Link></li>
+                        </ul>
+                    </div>
+
+                    <div className="col-span-1">
+                        <h4 className="font-serif text-sm uppercase tracking-widest mb-4">Connect</h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li><a href="#" className="hover:text-primary">Twitter</a></li>
+                            <li><a href="#" className="hover:text-primary">Facebook</a></li>
+                            <li><a href="#" className="hover:text-primary">Instagram</a></li>
+                        </ul>
+                    </div>
+
+                    <div className="col-span-1 md:col-span-1">
+                        <h4 className="font-serif text-sm uppercase tracking-widest mb-4">Subscribe</h4>
+                        <div className="flex gap-2">
+                            <input
+                                type="email"
+                                placeholder="Your email"
+                                className="bg-white dark:bg-background border border-border px-3 py-2 text-sm w-full focus:outline-none focus:border-primary"
+                            />
+                            <button className="bg-primary text-primary-foreground px-4 py-2 text-xs uppercase tracking-widest hover:opacity-90">
+                                Join
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div className="border-t border-border/30 mt-12 pt-6 text-center text-xs text-muted-foreground uppercase tracking-widest">
+                    &copy; {new Date().getFullYear()} Glenride Holy Bible and Journal. All Rights Reserved. v1.1
+                </div>
+                <p className="max-w-3xl mx-auto mt-4 text-center text-[11px] leading-relaxed text-muted-foreground/80">
+                    AI may be used to generate text and other content on this site, including study
+                    assistance. Scripture quotations are from the King James Version, which is in the
+                    public domain. Please verify important information independently.
+                </p>
+            </footer>
+        </div>
+    );
+}
